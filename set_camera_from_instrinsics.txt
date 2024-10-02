@@ -1,0 +1,45 @@
+import bpy
+
+# Your intrinsic parameters
+focal_length_x = 610.0  # Focal length in pixels (along X-axis)
+focal_length_y = 610.0  # Focal length in pixels (along Y-axis)
+principal_point_x = 317.0  # Principal point offset along X-axis (in pixels)
+principal_point_y = 238.0  # Principal point offset along Y-axis (in pixels)
+image_width = 640  # Image width in pixels
+image_height = 480  # Image height in pixels
+
+# Set render resolution
+scene = bpy.context.scene
+scene.render.resolution_x = image_width
+scene.render.resolution_y = image_height
+scene.render.pixel_aspect_x = 1.0
+scene.render.pixel_aspect_y = 1.0
+
+# Set the sensor size (default for full-frame cameras is 36mm x 24mm)
+sensor_width = 36.0  # in mm
+sensor_height = sensor_width * (image_height / image_width)  # Aspect ratio maintained
+
+# Compute the focal length in mm
+focal_length_mm = (focal_length_x * sensor_width) / image_width
+
+# Get the camera object
+camera = bpy.data.objects['Camera']
+
+# Set the camera focal length
+camera.data.lens = focal_length_mm  # in mm
+
+# Set the sensor size (for the correct aspect ratio)
+camera.data.sensor_width = sensor_width
+camera.data.sensor_height = sensor_height
+
+# Compute the lens shift
+shift_x = (principal_point_x - (image_width / 2)) / image_width
+shift_y = ((image_height / 2) - principal_point_y) / image_height  # Blender's Y shift is inverted
+
+# Set the lens shift
+camera.data.shift_x = shift_x
+camera.data.shift_y = shift_y
+
+print("Camera intrinsics set:")
+print(f"Focal Length (mm): {focal_length_mm}")
+print(f"Lens Shift: X = {shift_x}, Y = {shift_y}")

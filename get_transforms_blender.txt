@@ -1,0 +1,34 @@
+import bpy
+
+# Get the scene
+scene = bpy.context.scene
+
+# Get all objects in the scene
+all_objects = scene.objects
+
+# Iterate over all objects in the scene
+for obj in all_objects:
+    if obj.parent:
+        # Get the parent object
+        parent = obj.parent
+
+        # Print the objects involved
+        print(f"\nObject: {obj.name}")
+        print(f"  Parent: {parent.name}")
+        
+        # Get the transformation matrices of the object and its parent
+        parent_matrix = parent.matrix_world
+        child_matrix = obj.matrix_world
+
+        # Calculate the relative transformation matrix of the child relative to its parent
+        relative_matrix = parent_matrix.inverted() @ child_matrix
+
+        # Extract the relative translation, rotation, and scale
+        translation = relative_matrix.to_translation()
+        rotation = relative_matrix.to_euler()
+        scale = relative_matrix.to_scale()
+
+        # Print relative transformations
+        print(f"  Relative Location: {translation}")
+        print(f"  Relative Rotation (Euler): {rotation}")
+        print(f"  Relative Scale: {scale}")
