@@ -1,0 +1,55 @@
+import bpy
+
+# Create a new material
+mat = bpy.data.materials.new(name="CartoonWood")
+mat.use_nodes = True
+nodes = mat.node_tree.nodes
+links = mat.node_tree.links
+
+# Clear default nodes
+nodes.clear()
+
+# Add nodes
+output = nodes.new(type='ShaderNodeOutputMaterial')
+bsdf = nodes.new(type='ShaderNodeBsdfPrincipled')
+wave = nodes.new(type='ShaderNodeTexWave')
+color_ramp = nodes.new(type='ShaderNodeValToRGB')
+mapping = nodes.new(type='ShaderNodeMapping')
+tex_coord = nodes.new(type='ShaderNodeTexCoord')
+
+# Position nodes
+output.location = (600, 0)
+bsdf.location = (400, 0)
+color_ramp.location = (200, 0)
+wave.location = (0, 0)
+mapping.location = (-200, 0)
+tex_coord.location = (-400, 0)
+
+# Link nodes
+links.new(bsdf.outputs['BSDF'], output.inputs['Surface'])
+links.new(color_ramp.outputs['Color'], bsdf.inputs['Base Color'])
+links.new(wave.outputs['Color'], color_ramp.inputs['Fac'])
+links.new(mapping.outputs['Vector'], wave.inputs['Vector'])
+links.new(tex_coord.outputs['Generated'], mapping.inputs['Vector'])
+
+# Customize Wave Texture
+wave.wave_type = 'RINGS'
+wave.rings_direction = 'Z'
+wave.inputs['Scale'].default_value = 5.0
+wave.inputs['Detail'].default_value = 0.0  # Simplified for cartoon style
+wave.inputs['Distortion'].default_value = 1.0
+
+# Customize Mapping
+mapping.inputs['Scale'].default_value[0] = 1.0
+mapping.inputs['Scale'].default_value[1] = 0.3  # Stretch vertically
+mapping.inputs['Scale'].default_value[2] = 1.0
+
+# Customize ColorRamp
+color_ramp.color_ramp.elements[0].position = 0.3
+color_ramp.color_ramp.elements[0].color = (0.6, 0.3, 0.1, 1)  # Dark brown
+color_ramp.color_ramp.elements[1].position = 0.7
+color_ramp.color_ramp.elements[1].color = (1.0, 0.7, 0.3, 1)  # Light orange
+
+# Assign material to active object
+if bpy.context.object:
+    bpy.context.object.data.materials.append(mat)
